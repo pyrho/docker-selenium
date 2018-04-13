@@ -1,3 +1,4 @@
+FROM ubuntu:xenial-20180123
 #== FROM instructions support variables that are declared by
 # any ARG instructions that occur before the first FROM
 # ref: https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
@@ -10,7 +11,7 @@ ARG UBUNTU_DATE=20180228
 #== Ubuntu xenial is 16.04, i.e. FROM ubuntu:16.04
 # Find latest images at https://hub.docker.com/r/library/ubuntu/
 # Layer size: ~122 MB
-FROM ubuntu:${UBUNTU_FLAVOR}-${UBUNTU_DATE}
+#FROM ubuntu:${UBUNTU_FLAVOR}-${UBUNTU_DATE}
 
 #== An ARG declared before a FROM is outside of a build stage,
 # so it can’t be used in any instruction after a FROM. To use
@@ -130,6 +131,7 @@ RUN apt -qqy update \
     dbus-x11 \
     wget \
     curl \
+    vim \
   && apt -qyy autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && apt -qyy clean
@@ -669,6 +671,28 @@ COPY images/wallpaper-dosel.png /usr/share/images/fluxbox/ubuntu-light.png
 COPY images/wallpaper-zalenium.png /usr/share/images/fluxbox/
 RUN chown -R seluser:seluser /usr/share/images/fluxbox/ \
  && chmod -R 777 /usr/share/images/fluxbox
+
+#===============
+# NodeJS
+#===============
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt -qyy update \
+  && apt -qqy install nodejs \
+  && apt -qyy autoremove \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt -qyy clean
+
+#===============
+# Yarn
+#===============
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
+RUN apt -qyy update \
+  && apt -qqy install yarn\
+  && apt -qyy autoremove \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt -qyy clean
+
 
 #===================================================
 # Run the following commands as non-privileged user
